@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tinypng-test</title>
+
+    <style>
+      body {
+        padding: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" onchange="onFileChange(event)" />
+    <div id="filename"></div>
+    <img src="" alt="" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
+    <script>
+      //* 測試是會擋跨域 (cord)
+      let imgFilename = '';
+      let imgBase64 = '';
+      async function tinyImage(data) {
+        const headers = {
+          Authorization: 'Basic x5c0RMd7Vfc7tYZBTBg1txMj481Vv3kw',
+          withCredentials: true,
+        };
+        const result = await axios.post('https://tinypng.com/web/shrink', data, { headers });
+        return result.data;
+      }
+
+      async function onFileChange(event) {
+        console.log('onFileChange', event);
+        const files = event.target.files || event.dataTransfer.files;
+        if (!files.length || files.length <= 0) {
+          return;
+        }
+        imgFilename = files[0].name;
+
+        //* 將圖片轉成 base64 url
+        const reader = new FileReader();
+        reader.onload = async e => {
+          imgBase64 = e.target.result;
+          console.log(imgBase64);
+          document.querySelector('#filename').innerHTML = filename;
+          document.querySelector('img').src = e.target.result;
+
+          //* tiny
+          const result = await tinyImage(imgBase64);
+          console.log(result);
+        };
+        reader.readAsDataURL(files[0]);
+      }
+    </script>
+  </body>
+</html>
